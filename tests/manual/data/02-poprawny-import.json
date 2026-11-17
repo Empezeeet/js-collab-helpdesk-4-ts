@@ -1,0 +1,4 @@
+[
+  { "id": "101", "title": "Importowany laptop", "priority": "high", "status": "new" },
+  { "id": "102", "title": "Importowana klawiatura", "priority": "low", "status": "done" }
+]

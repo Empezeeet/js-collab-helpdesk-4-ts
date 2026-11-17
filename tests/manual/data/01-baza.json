@@ -1,0 +1,6 @@
+[
+  { "id": "1", "title": "Drukarka nie działa", "priority": "high", "status": "new" },
+  { "id": "2", "title": "Reset hasła", "priority": "normal", "status": "doing" },
+  { "id": "3", "title": "Sprawdzenie projektora", "priority": "normal", "status": "testing" },
+  { "id": "4", "title": "Nowy monitor", "priority": "low", "status": "done" }
+]

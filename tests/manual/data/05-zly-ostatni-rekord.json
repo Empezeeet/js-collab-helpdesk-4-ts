@@ -1,0 +1,5 @@
+[
+  { "id": "301", "title": "Poprawny pierwszy rekord", "priority": "normal", "status": "new" },
+  { "id": "302", "title": "Poprawny drugi rekord", "priority": "low", "status": "done" },
+  { "id": "303", "title": "Niepoprawny ostatni rekord", "priority": "high", "status": "closed" }
+]

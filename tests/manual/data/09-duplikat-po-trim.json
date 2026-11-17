@@ -1,0 +1,4 @@
+[
+  { "id": "601", "title": "Pierwszy identyfikator", "priority": "normal", "status": "new" },
+  { "id": " 601 ", "title": "Identyfikator ze spacjami", "priority": "low", "status": "done" }
+]
