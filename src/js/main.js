@@ -1,48 +1,79 @@
-const priorities = ["low", "normal", "high"];
-const statuses = ["new", "doing", "testing", "done"];
-const priorityLabels = { low: "Niski", normal: "Średni", high: "Wysoki" };
-const statusLabels = { new: "Nowe", doing: "W Realizacji", testing: "W Testach", done: "Ukończone" };
-
-let nextId = 1;
+import { addTicket, nextTicketId } from "./tickets.js";
+import { commitTickets, getTickets, loadTickets, StorageError } from "./storage.js";
+import { isBusy, renderTickets, setFormMessage } from "./ui.js";
+import { DEFAULT_IMPORT_URL, importFromFile, importFromUrl } from "./import.js";
 
 const form = document.querySelector("#ticketForm");
 const titleInput = document.querySelector("#title");
-const formMessage = document.querySelector("#formMessage");
 const filter = document.querySelector("#statusFilter");
 const sort = document.querySelector("#prioritySorter");
-const list = document.querySelector("#ticketList");
-const counter = document.querySelector("#ticketCounter");
-const emptyMessage = document.querySelector("#emptyMessage");
+const importFileInput = document.querySelector("#importFile");
+const importFetchButton = document.querySelector("#importFetch");
 
 form.addEventListener("submit", event => {
     event.preventDefault();
+    if (isBusy()) return;
+
     const priority = form.querySelector('input[name="Priorytet"]:checked');
+
     try {
-        tickets = addTicket(tickets, {
-            id: String(nextId), title: titleInput.value,
-            priority: priority ? priority.value : "", status: "new"
+        const currentTickets = getTickets();
+        const nextTickets = addTicket(currentTickets, {
+            id: nextTicketId(currentTickets),
+            title: titleInput.value,
+            priority: priority ? priority.value : "",
+            status: "new"
         });
-        nextId++;
+
+        commitTickets(nextTickets);
         titleInput.value = "";
         titleInput.removeAttribute("aria-invalid");
-        formMessage.textContent = "Dodano zgłoszenie.";
+        setFormMessage("Dodano zgłoszenie.");
+    } catch (error) {
+        if (error instanceof StorageError) {
+            const reason = error.message.charAt(0).toLowerCase() + error.message.slice(1);
+            titleInput.value = "";
+            titleInput.removeAttribute("aria-invalid");
+            setFormMessage(`Dodano zgłoszenie, ale ${reason}`, true);
+        } else {
+            setFormMessage(error.message, true);
+
+            if (titleInput.value.trim().length < 3 || titleInput.value.trim().length > 80) {
+                titleInput.setAttribute("aria-invalid", "true");
+            }
+        }
+    } finally {
         renderTickets();
         titleInput.focus();
-    } catch (error) {
-        formMessage.textContent = error.message;
-        if (titleInput.value.trim().length < 3 || titleInput.value.trim().length > 80) {
-            titleInput.setAttribute("aria-invalid", "true");
-            titleInput.focus();
-        }
     }
 });
-filter.addEventListener("change", renderTickets);
-sort.addEventListener("change", renderTickets)
 
-await renderTickets();
+filter.addEventListener("change", renderTickets);
+sort.addEventListener("change", renderTickets);
+
+importFetchButton.addEventListener("click", async () => {
+    await importFromUrl(DEFAULT_IMPORT_URL);
+});
+
+importFileInput.addEventListener("change", async () => {
+    const file = importFileInput.files?.[0];
+    if (!file) return;
+
+    importFileInput.value = "";
+    await importFromFile(file);
+});
+
+try {
+    loadTickets();
+} catch (error) {
+    setFormMessage(error.message, true);
+}
+
+renderTickets();
 
 window.addEventListener("pageshow", event => {
     if (event.persisted) return;
+
     filter.querySelectorAll('input[type="checkbox"]').forEach(input => {
         input.checked = input.defaultChecked;
     });

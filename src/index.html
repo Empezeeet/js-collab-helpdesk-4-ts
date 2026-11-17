@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Helpdesk</title>
     <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
-    <script src="main.js" defer></script>
-    <script src="storage.js" defer></script>
-    <script src="tickets.js" defer></script>
-    <script src="ui.js" defer></script>
-    <script src="import.js" defer></script>
+    <script type="module" src="js/main.js"></script>
 </head>
 <body>
     <main class="container py-4">
@@ -43,6 +39,11 @@
             </section>
             <section class="col-12 col-lg-8" aria-labelledby="ticketListHeading">
                 <h2 id="ticketListHeading" class="h4 mb-3">Zgłoszenia</h2>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <button type="button" id="importFetch" class="btn btn-outline-secondary btn-sm" data-import>Importuj tickets.json</button>
+                    <input type="file" id="importFile" class="form-control form-control-sm w-auto" accept=".json,application/json" aria-label="Importuj plik JSON" data-import>
+                </div>
+                <p id="importMessage" role="status" class="small mb-3"></p>
                 <div class="row align-items-center g-2 mb-3">
                     <fieldset id="statusFilter" class="col-12 mb-2">
                         <legend class="fs-6 mb-1">Filtr statusu:</legend>
