@@ -1,26 +1,26 @@
 // Warstwa localStorage: stan listy i trwały zapis.
-import { validateTicketSet } from "./tickets.js";
+import { ticket_t, validateTicketSet } from "./tickets..js";
 
-export const STORAGE_KEY = "tickets";
+export const STORAGE_KEY: string = "tickets";
 
-let tickets = [];
+let tickets: Array<ticket_t> = [];
 
 export class StorageError extends Error {
-    constructor(message, cause) {
+    constructor(message: string, cause: string) {
         super(message);
         this.name = "StorageError";
         this.cause = cause;
     }
 }
 
-export function getTickets() {
+export function getTickets(): Array<ticket_t> {
     return tickets;
 }
 
-function writeTickets(nextTickets) {
+function writeTickets(nextTickets: Array<ticket_t>) {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(nextTickets));
-    } catch (error) {
+    } catch (error: any) {
         throw new StorageError(
             "Nie udało się zapisać zgłoszeń w localStorage. Dane pozostają tylko w pamięci.",
             error
@@ -28,19 +28,19 @@ function writeTickets(nextTickets) {
     }
 }
 
-export function loadTickets() {
+export function loadTickets(): Array<ticket_t> {
     tickets = [];
 
-    let raw;
+    let raw: string | null;
     try {
         raw = localStorage.getItem(STORAGE_KEY);
-    } catch (error) {
+    } catch (error: any) {
         throw new StorageError("Nie udało się odczytać danych z localStorage.", error);
     }
 
     if (raw === null) return [];
 
-    let parsed;
+    let parsed: Array<ticket_t>;
     try {
         parsed = JSON.parse(raw);
     } catch {
@@ -52,7 +52,7 @@ export function loadTickets() {
 
     try {
         tickets = validateTicketSet(parsed);
-    } catch (error) {
+    } catch (error: any) {
         throw new Error(
             `Zapisane zgłoszenia są nieprawidłowe: ${error.message} ` +
             "Zapis w localStorage nie został usunięty."
@@ -62,15 +62,15 @@ export function loadTickets() {
     return tickets;
 }
 
-export function commitTickets(nextTickets) {
-    const cleanTickets = validateTicketSet(nextTickets);
+export function commitTickets(nextTickets: Array<ticket_t>): Array<ticket_t> {
+    const cleanTickets: Array<ticket_t> = validateTicketSet(nextTickets);
     tickets = cleanTickets;
     writeTickets(cleanTickets);
     return cleanTickets;
 }
 
-export function replaceTickets(nextTickets) {
-    const cleanTickets = validateTicketSet(nextTickets);
+export function replaceTickets(nextTickets: Array<ticket_t>): Array<ticket_t> {
+    const cleanTickets: Array<ticket_t> = validateTicketSet(nextTickets);
     writeTickets(cleanTickets);
     tickets = cleanTickets;
     return cleanTickets;

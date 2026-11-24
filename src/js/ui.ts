@@ -1,4 +1,4 @@
-import { changeTicket, deleteTicket, priorities, priorityLabels, statuses, statusLabels } from "./tickets.js";
+import { changeTicket, deleteTicket, priorities, priorityLabels, statuses, statusLabels } from "./tickets..js";
 import { commitTickets, getTickets } from "./storage.js";
 
 const form = document.querySelector("#ticketForm");
