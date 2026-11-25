@@ -6,7 +6,8 @@ export const STORAGE_KEY: string = "tickets";
 let tickets: Array<ticket_t> = [];
 
 export class StorageError extends Error {
-    constructor(message: string, cause: string) {
+    readonly cause: unknown;
+    constructor(message: string, cause: unknown) {
         super(message);
         this.name = "StorageError";
         this.cause = cause;

@@ -1,66 +1,67 @@
 import { changeTicket, deleteTicket, priorities, priorityLabels, statuses, statusLabels } from "./tickets..js";
 import { commitTickets, getTickets } from "./storage.js";
+import { ticket_t } from "./tickets..js"
 
-const form = document.querySelector("#ticketForm");
+const form: HTMLFormElement | null = document.querySelector("#ticketForm");
 const formMessage = document.querySelector("#formMessage");
 const filter = document.querySelector("#statusFilter");
-const sort = document.querySelector("#prioritySorter");
+const sort: HTMLInputElement | null = document.querySelector("#prioritySorter");
 const list = document.querySelector("#ticketList");
 const counter = document.querySelector("#ticketCounter");
 const emptyMessage = document.querySelector("#emptyMessage");
 
-let busy = false;
+let busy: boolean = false;
 
-export function isBusy() {
+export function isBusy(): boolean {
     return busy;
 }
 
-export function setBusy(locked) {
+export function setBusy(locked: boolean) {
     busy = locked;
 
-    form.querySelectorAll("input, select, button, textarea").forEach(control => {
-        control.disabled = locked;
+    form!.querySelectorAll("input, select, button, textarea").forEach(control => {
+        (control as HTMLInputElement).disabled = locked;
     });
-    list.querySelectorAll("input, select, button, textarea").forEach(control => {
-        control.disabled = locked;
+    list!.querySelectorAll("input, select, button, textarea").forEach(control => {
+        (control as HTMLInputElement).disabled = locked;
     });
     document.querySelectorAll("[data-import]").forEach(control => {
-        control.disabled = locked;
+        (control as HTMLInputElement).disabled = locked;
     });
 
     document.querySelector("main")?.setAttribute("aria-busy", String(locked));
 }
 
-export function setFormMessage(message, isError = false) {
-    formMessage.textContent = message;
-    formMessage.classList.toggle("text-danger", isError);
-    formMessage.classList.toggle("text-success", !isError && Boolean(message));
+export function setFormMessage(message: string, isError = false) {
+    formMessage!.textContent = message;
+    formMessage!.classList.toggle("text-danger", isError);
+    formMessage!.classList.toggle("text-success", !isError && Boolean(message));
 }
 
-export function renderTickets() {
-    const tickets = getTickets();
+export function renderTickets(): void | string {
+    const tickets: Array<ticket_t> = getTickets();
     const selectedStatuses = new Set(
-        [...filter.querySelectorAll("input:checked")].map(input => input.value)
+        [...filter!.querySelectorAll("input:checked")].map(input => (input as HTMLInputElement).value)
     );
 
     const visible = tickets
         .filter(ticket => selectedStatuses.has(ticket.status))
         .sort((a, b) => {
-            if (sort.value === "htl") {
+            if (sort!.value === "htl") {
                 return priorities.indexOf(b.priority) - priorities.indexOf(a.priority);
             }
-            if (sort.value === "lth") {
+            if (sort!.value === "lth") {
                 return priorities.indexOf(a.priority) - priorities.indexOf(b.priority);
             }
             return String(a.id).localeCompare(String(b.id), "pl", { numeric: true });
         });
 
-    list.replaceChildren(...visible.map(createTicketRow));
-    counter.textContent = `Widoczne: ${visible.length} / Wszystkie: ${tickets.length}`;
-    emptyMessage.textContent = visible.length ? "" : "Brak zgłoszeń dla wybranego filtra.";
+    list!.replaceChildren(...visible.map(createTicketRow));
+    counter!.textContent = `Widoczne: ${visible.length} / Wszystkie: ${tickets.length}`;
+    emptyMessage!.textContent = visible.length ? "" : "Brak zgłoszeń dla wybranego filtra.";
 }
 
-export function createTicketRow(ticket) {
+export function createTicketRow(ticket: ticket_t) {
     const row = document.createElement("li");
     row.className = "list-group-item";
 
@@ -69,7 +70,7 @@ export function createTicketRow(ticket) {
 
     const description = document.createElement("span");
     description.className = "text-break";
-    description.textContent = `#${ticket.id} — ${ticket.title} | Priorytet: ${priorityLabels[ticket.priority]}`;
+    description.textContent = `#${ticket.id} — ${ticket.title} | Priorytet: ${(priorityLabels as Record<string, string>)[ticket.priority]}`;
 
     const delbtn = document.createElement("button");
     delbtn.type = "button";
@@ -82,7 +83,7 @@ export function createTicketRow(ticket) {
         try {
             commitTickets(deleteTicket(getTickets(), ticket.id));
             setFormMessage(`Usunięto zgłoszenie #${ticket.id}.`);
-        } catch (error) {
+        } catch (error: any) {
             setFormMessage(error.message, true);
         }
 
@@ -91,19 +92,19 @@ export function createTicketRow(ticket) {
 
     header.append(description, delbtn);
 
-    const label = document.createElement("label");
+    const label: HTMLLabelElement = document.createElement("label");
     label.className = "d-block";
     label.textContent = "Status: ";
 
-    const select = document.createElement("select");
+    const select: HTMLSelectElement = document.createElement("select");
     select.className = "form-select form-select-sm mt-1";
     select.setAttribute("aria-label", `Status zgłoszenia ${ticket.id}: ${ticket.title}`);
     select.disabled = busy;
 
     for (const status of statuses) {
         const option = document.createElement("option");
-        option.value = status;
-        option.textContent = statusLabels[status];
+        option.value = status as string;
+        option.textContent = (statusLabels as Record<string, string>)[status as string];
         select.append(option);
     }
 
@@ -115,12 +116,12 @@ export function createTicketRow(ticket) {
         try {
             commitTickets(changeTicket(getTickets(), ticket.id, select.value));
             setFormMessage(`Zmieniono status zgłoszenia #${ticket.id}.`);
-        } catch (error) {
+        } catch (error: any) {
             setFormMessage(error.message, true);
         }
 
         renderTickets();
-        filter.querySelector("input")?.focus();
+        filter!.querySelector("input")?.focus();
     });
 
     label.append(select);
